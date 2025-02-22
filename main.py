@@ -7,6 +7,7 @@ import subprocess
 import time
 import threading
 import sys
+import pyperclip
 import schedule
 
 VERSION = "1.0"
@@ -81,6 +82,25 @@ def task_scheduler():
         schedule.run_pending()
         time.sleep(1)
 
+def clipboard_monitor():
+    """Monitors the clipboard and saves unique copied text."""
+    while True:
+        if config["is_clipboard_enabled"]:
+            clipboard_content = pyperclip.paste()
+
+            if clipboard_content and clipboard_content not in config["saved_clipboard"]:
+                # Add new text to the clipboard history
+                config["saved_clipboard"].append(clipboard_content)
+                
+                # Keep only the last `max_saved_clipboard` items
+                if len(config["saved_clipboard"]) > config["max_saved_clipboard"]:
+                    config["saved_clipboard"].pop(0)
+
+                save_config()
+                print(f"[Clipboard Manager] New entry added: {clipboard_content}")
+
+        time.sleep(1)  # Prevent high CPU usage
+
 def console_menu():
     while True:
         print_defaults()
@@ -107,7 +127,7 @@ def console_menu():
                             config["is_sorting_enabled"] = True
                             sorting_thread = threading.Thread(target=task_scheduler, daemon=True)
                             sorting_thread.start()
-                            print("Download sorting has been enabled, and settings were saved!")
+                            print("Download sorting has been enabled.")
                             save_config()
                             break
                         clear_term()
@@ -117,14 +137,39 @@ def console_menu():
                         if config["is_sorting_enabled"]:
                             clear_term()
                             config["is_sorting_enabled"] = False
-                            print("Download sorting has been disabled, and settings were saved!")
+                            print("Download sorting has been disabled.")
                             save_config()
                             break
                         clear_term()
                         print("Download sorting is already disabled.")
                         break
             case "2":
-                pass
+                while True:
+                    clear_term()
+                    switch = input("[1] Enable Clipboard Manager\n[2] Disable Clipboard Manager\n[c] Cancel\n\nWhat do you want to do?: ")
+
+                    if switch not in ["1", "2", "c"]:
+                        continue
+                    if switch == "c":
+                        break
+                    if switch == "1":
+                        if not config["is_clipboard_enabled"]:
+                            config["is_clipboard_enabled"] = True
+                            clipboard_thread = threading.Thread(target=clipboard_monitor, daemon=True)
+                            clipboard_thread.start()
+                            save_config()
+                            print("Clipboard Manager has been enabled.")
+                        else:
+                            print("Clipboard Manager is already enabled.")
+                        break
+                    if switch == "2":
+                        if config["is_clipboard_enabled"]:
+                            config["is_clipboard_enabled"] = False
+                            save_config()
+                            print("Clipboard Manager has been disabled.")
+                        else:
+                            print("Clipboard Manager is already disabled.")
+                        break
             case "3":
                 pass 
             case "4":
@@ -139,12 +184,12 @@ def console_menu():
                         break
                     if switch == "1":
                         clear_term()
-                        ad = MP3Downloader()
+                        MP3Downloader()
 
                         break
                     if switch == "2":
                         clear_term()
-                        vd = VideoDownloader()  
+                        VideoDownloader()  
                         break
             case _:
                 clear_term()
@@ -172,6 +217,11 @@ if __name__ == "__main__":
     if config["is_sorting_enabled"]:
         sorting_thread = threading.Thread(target=task_scheduler, daemon=True)
         sorting_thread.start()
+
+    # Start clipboard monitoring if enabled
+    if config["is_clipboard_enabled"]:
+        clipboard_thread = threading.Thread(target=clipboard_monitor, daemon=True)
+        clipboard_thread.start()
 
     # Run the console menu in the main thread
     console_menu()

@@ -2,3 +2,4 @@ schedule
 tkinter
 pywin32
 winshell
+pyperclip
