@@ -1,1 +1,11 @@
 core/kinstaller.py
+*.pyc
+core/__pycache__/folder_structure.cpython-312.pyc
+__pycache__/*
+__pycache__
+core/__pycache__/*
+core/__pycache__
+ffmpeg
+folder_structure.cpython-312.pyc
+KDownloads
+config.json
