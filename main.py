@@ -138,31 +138,14 @@ def console_menu():
                         clear_term()
                         break
                     if switch == "1":
+                        clear_term()
                         ad = MP3Downloader()
 
-                        result = ad.is_download_successful()
-
-                        if result:
-                            clear_term()
-                            print("Audio downloaded succesfully. You can find it in KDownloads folder where KDesktop is located.")
-                            break
-                        else:
-                            clear_term()
-                            print("Error while downloading auido: maybe it does not exists?")
-                            break
+                        break
                     if switch == "2":
-                        vd = VideoDownloader()
-
-                        result = vd.is_download_successful()
-
-                        if result:
-                            clear_term()
-                            print("Videos downloaded succesfully. You can find them in KDownloads folder where KDesktop is located.")
-                            break
-                        else:
-                            clear_term()
-                            print("Error while downloading videos, maybe it does not exists?")
-                            break      
+                        clear_term()
+                        vd = VideoDownloader()  
+                        break
             case _:
                 clear_term()
                 continue
