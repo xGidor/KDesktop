@@ -157,9 +157,9 @@ def console_menu():
                 while True:
                     clear_term()
                     in_menu_console = False
-                    switch = input("Clipboard Manager saves your copied texts into KDesktop and you can view them whenever you want.\n[1] Enable Clipboard Manager\n[2] Disable Clipboard Manager\n[3] Set maximum saved count\n[c] Cancel\n\nWhat do you want to do?: ")
+                    switch = input("Clipboard Manager saves your copied texts into KDesktop and you can view them whenever you want.\n[1] Enable Clipboard Manager\n[2] Disable Clipboard Manager\n[3] Set maximum saved count\n[4] View clipboard\n[5] Clear clipboard\n[c] Cancel\n\nWhat do you want to do?: ")
 
-                    if switch.lower() not in ["1", "2", "3", "c"]:
+                    if switch.lower() not in ["1", "2", "3", "4", "5", "c"]:
                         continue
                     if switch.lower() == "c":
                         break
@@ -199,12 +199,35 @@ def console_menu():
                                 clear_term()
                                 print("Incorrect number set! Please type in a number.")
                                 break
-                        break                        
+                        break   
+                    if switch == "4":
+                        clear_term()
+                        
+                        if config["saved_clipboard"]:  # Check if the list is not empty
+                            print("Saved clipboard contents:\n")
+                            for index, item in enumerate(config["saved_clipboard"], start=1):
+                                print(f"{index}. {item}")
+                        else:
+                            print("Clipboard is empty.")
+                        
+                        input("\nPress Enter to continue...")  # Pause before returning to the loop   
+                        clear_term()
+                        break                     
+                    if switch == "5":
+                        clear_term()
+                        choice = input("Are you sure you want to clear your clipboard? (y/n, default: yes): ")
+                        if choice in ["no", "n"]:
+                            clear_term()
+                            break
 
+                        config["saved_clipboard"] = []
+                        pyperclip.copy("") # Also clears the windows clipboard
 
-
-
+                        clear_term()
+                        print("Clipboard was cleared successfully.")
+                        break
             case "3":
+                clear_term()
                 pass 
             case "4":
                 while True:

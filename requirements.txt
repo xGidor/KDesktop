@@ -1,5 +1,5 @@
 schedule
-tkinter
 pywin32
+yt_dlp
 winshell
 pyperclip
