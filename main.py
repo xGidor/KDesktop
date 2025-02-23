@@ -1,4 +1,4 @@
-# KDesktop-Helper (KaziDesktop) created by Gidor
+# KDesktop (KaziDesktop) created by Gidor
 
 import ctypes
 import json
@@ -27,6 +27,8 @@ config = {
     "is_autostart_enabled": False,
     "autostart_paths": []
 }
+
+in_menu_console = False
 
 def clear_term():
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -64,10 +66,11 @@ def task():
     did_cleanup = download_manager.move_files()
 
     if did_cleanup:
-        clear_term()
-        print_defaults()
-        print("[Download Sorting] Task executed.\n")
-        print("[1] Download Sorting\n[2] Clipboard Manager\n[3] Autostart programs\n[4] Media Downloader\n[q] Exit KDekstop\n\nType your choice: ")
+        if in_menu_console:
+            clear_term()
+            print_defaults()
+            print("[Download Sorting] Task executed.\n")
+            print("[1] Download Sorting\n[2] Clipboard Manager\n[3] Autostart programs\n[4] Media Downloader\n[q] Exit KDekstop\n\nType your choice: ")
 
 def task_scheduler():
     """Runs the scheduled task in a separate thread."""
@@ -97,13 +100,19 @@ def clipboard_monitor():
                     config["saved_clipboard"].pop(0)
 
                 save_config()
-                print(f"[Clipboard Manager] New entry added: {clipboard_content}")
+                if in_menu_console:
+                    clear_term()
+                    print_defaults()
+                    print(f"[Clipboard Manager] New entry added: {clipboard_content}\n")
+                    print("[1] Download Sorting\n[2] Clipboard Manager\n[3] Autostart programs\n[4] Media Downloader\n[q] Exit KDekstop\n\nType your choice: ")
 
         time.sleep(1)  # Prevent high CPU usage
 
 def console_menu():
+    global in_menu_console
     while True:
         print_defaults()
+        in_menu_console = True
         choice = input("[1] Download Sorting\n[2] Clipboard Manager\n[3] Autostart programs\n[4] Media Downloader\n[q] Exit KDekstop\n\nType your choice: ")
         match choice:
             case  "q":
@@ -114,6 +123,7 @@ def console_menu():
             case "1":
                 while True:
                     clear_term()
+                    in_menu_console = False
                     switch = input("Download Sorting is a feature that automaticaly sorts your downloaded files into the corresponding folders, example: Photos in the Photos folder.\nKDesktop automatically creates shortcuts for these folders in your Download folder.\n\n[1] Turn download sorting ON\n[2] Turn download sorting OFF\n[c] Cancel\n\nWhat do you want to do?: ")
                     if switch.lower() not in ["1", "2", "c"]:
                         clear_term()
@@ -146,11 +156,12 @@ def console_menu():
             case "2":
                 while True:
                     clear_term()
-                    switch = input("[1] Enable Clipboard Manager\n[2] Disable Clipboard Manager\n[c] Cancel\n\nWhat do you want to do?: ")
+                    in_menu_console = False
+                    switch = input("Clipboard Manager saves your copied texts into KDesktop and you can view them whenever you want.\n[1] Enable Clipboard Manager\n[2] Disable Clipboard Manager\n[3] Set maximum saved count\n[c] Cancel\n\nWhat do you want to do?: ")
 
-                    if switch not in ["1", "2", "c"]:
+                    if switch.lower() not in ["1", "2", "3", "c"]:
                         continue
-                    if switch == "c":
+                    if switch.lower() == "c":
                         break
                     if switch == "1":
                         if not config["is_clipboard_enabled"]:
@@ -170,11 +181,35 @@ def console_menu():
                         else:
                             print("Clipboard Manager is already disabled.")
                         break
+                    if switch == "3":
+                        while True:
+                            in_menu_console = False
+                            clear_term()
+                            try:
+                                count = int(input("Type in how many clipboard messages do you want to save maximum: "))
+                                if 10 <= count <= 100:
+                                    clear_term()
+                                    print(f"Clipboard Manager maximum set to {count}.")
+                                    break 
+                                else:
+                                    clear_term()
+                                    print("Incorrect number set! The maximum number you can set is 100, and the minimum is 10. Default: 25")
+                                    break
+                            except ValueError:
+                                clear_term()
+                                print("Incorrect number set! Please type in a number.")
+                                break
+                        break                        
+
+
+
+
             case "3":
                 pass 
             case "4":
                 while True:
                     clear_term()
+                    in_menu_console = False
                     switch = input("""[1] MP3 Downloader (Audio)\n[2] MP4 Downloader (Video)\n[c] Cancel\nWhat do you want to do?: """)
                     if switch.lower() not in ["1", "2", "c"]:
                         clear_term()
