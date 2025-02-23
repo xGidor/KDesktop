@@ -59,6 +59,9 @@ def set_process_name():
     """Set the process Windows Title if ran in Console mode""" # regardless of which mode it is running in, task manager will show Python.exe
     ctypes.windll.kernel32.SetConsoleTitleW("KDesktop")
 
+def print_console_choices():
+    print("[1] Download Sorting\n[2] Clipboard Manager\n[3] Autostart Manager (soon)\n[4] Media Downloader\n[q] Exit KDekstop\n\nType your choice: ")
+
 def task():
     """The function that runs every minute."""
     folder_structure.check_folders()
@@ -70,7 +73,7 @@ def task():
             clear_term()
             print_defaults()
             print("[Download Sorting] Task executed.\n")
-            print("[1] Download Sorting\n[2] Clipboard Manager\n[3] Autostart programs\n[4] Media Downloader\n[q] Exit KDekstop\n\nType your choice: ")
+            print_console_choices()
 
 def task_scheduler():
     """Runs the scheduled task in a separate thread."""
@@ -104,7 +107,7 @@ def clipboard_monitor():
                     clear_term()
                     print_defaults()
                     print(f"[Clipboard Manager] New entry added: {clipboard_content}\n")
-                    print("[1] Download Sorting\n[2] Clipboard Manager\n[3] Autostart programs\n[4] Media Downloader\n[q] Exit KDekstop\n\nType your choice: ")
+                    print_console_choices()
 
         time.sleep(1)  # Prevent high CPU usage
 
@@ -113,7 +116,7 @@ def console_menu():
     while True:
         print_defaults()
         in_menu_console = True
-        choice = input("[1] Download Sorting\n[2] Clipboard Manager\n[3] Autostart programs\n[4] Media Downloader\n[q] Exit KDekstop\n\nType your choice: ")
+        choice = input("[1] Download Sorting\n[2] Clipboard Manager\n[3] Autostart Manager (Soon)\n[4] Media Downloader\n[q] Exit KDekstop\n\nType your choice: ")
         match choice:
             case  "q":
                 clear_term()
@@ -124,7 +127,7 @@ def console_menu():
                 while True:
                     clear_term()
                     in_menu_console = False
-                    switch = input("Download Sorting is a feature that automaticaly sorts your downloaded files into the corresponding folders, example: Photos in the Photos folder.\nKDesktop automatically creates shortcuts for these folders in your Download folder.\n\n[1] Turn download sorting ON\n[2] Turn download sorting OFF\n[c] Cancel\n\nWhat do you want to do?: ")
+                    switch = input("Download Sorting is a feature that automaticaly sorts your downloaded files into the corresponding folders, example: Photos in the Photos folder. (Does not support Linux yet)\nKDesktop automatically creates shortcuts for these folders in your Download folder.\n\n[1] Turn download sorting ON\n[2] Turn download sorting OFF\n[c] Cancel\n\nWhat do you want to do?: ")
                     if switch.lower() not in ["1", "2", "c"]:
                         clear_term()
                         continue
@@ -228,7 +231,11 @@ def console_menu():
                         break
             case "3":
                 clear_term()
-                pass 
+                continue
+                while True:
+                    clear_term()
+                    in_menu_console = False
+                    switch = input("Autostart Manager can help you autostart python scripts when your pc starts. (This only works if KDesktop is also set to autostart)\n[1] Enable Autostart Manager\n[2] Disable Autostart Manager\n[3] Add python script\n[4] Remove python script\n[c] Cancel\n\nWhat do you want to do?: ")
             case "4":
                 while True:
                     clear_term()
