@@ -9,6 +9,7 @@ import threading
 import sys
 import pyperclip
 import schedule
+import pythoncom
 
 VERSION = "1.0"
 
@@ -77,39 +78,54 @@ def task():
 
 def task_scheduler():
     """Runs the scheduled task in a separate thread."""
-    
+
+    pythoncom.CoInitialize()  # Initialize COM before using Dispatch
+
     # Run the task immediately at startup
     task()
+    try:
+        # Schedule the task every 3 seconds (adjust as needed)
+        schedule.every(3).seconds.do(task)
 
-    # Schedule the task every 3 seconds (adjust as needed)
-    schedule.every(3).seconds.do(task)
-
-    while True:
-        schedule.run_pending()
-        time.sleep(1)
+        while True:
+            if config["is_sorting_enabled"]:
+                schedule.run_pending()
+                time.sleep(1)
+                continue
+            break   
+    finally:
+        pythoncom.CoUninitialize()  # Cleanup COM when thread ends
 
 def clipboard_monitor():
     """Monitors the clipboard and saves unique copied text."""
-    while True:
-        if config["is_clipboard_enabled"]:
-            clipboard_content = pyperclip.paste()
+    
+    pythoncom.CoInitialize()  # Initialize COM before using Dispatch
+    try:
+        while True:
+            if config["is_clipboard_enabled"]:
+                clipboard_content = pyperclip.paste()
 
-            if clipboard_content and clipboard_content not in config["saved_clipboard"]:
-                # Add new text to the clipboard history
-                config["saved_clipboard"].append(clipboard_content)
-                
-                # Keep only the last `max_saved_clipboard` items
-                if len(config["saved_clipboard"]) > config["max_saved_clipboard"]:
-                    config["saved_clipboard"].pop(0)
+                if clipboard_content and clipboard_content not in config["saved_clipboard"]:
+                    # Add new text to the clipboard history
+                    config["saved_clipboard"].append(clipboard_content)
+                    
+                    # Keep only the last `max_saved_clipboard` items
+                    if len(config["saved_clipboard"]) > config["max_saved_clipboard"]:
+                        config["saved_clipboard"].pop(0)
 
-                save_config()
-                if in_menu_console:
-                    clear_term()
-                    print_defaults()
-                    print(f"[Clipboard Manager] New entry added: {clipboard_content}\n")
-                    print_console_choices()
+                    save_config()
+                    if in_menu_console:
+                        clear_term()
+                        print_defaults()
+                        print(f"[Clipboard Manager] New entry added: {clipboard_content}\n")
+                        print_console_choices()
+                time.sleep(1)  # Prevent high CPU usage
+                continue
+            time.sleep(1)  # Prevent high CPU usage
+            break
 
-        time.sleep(1)  # Prevent high CPU usage
+    finally:
+        pythoncom.CoUninitialize()  # Cleanup COM when thread ends        
 
 def console_menu():
     global in_menu_console
