@@ -50,7 +50,7 @@ def move_files():
         file_path = os.path.join(DOWNLOADS_DIR, file)
 
         # Skip directories and excluded files (shortcuts)
-        if os.path.isdir(file_path) or file in EXCLUDED_FILES:
+        if os.path.isdir(file_path) or file in EXCLUDED_FILES or ".crdownload" in file:
             continue
 
         # Get file extension
